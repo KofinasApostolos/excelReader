@@ -1,82 +1,97 @@
-﻿using CsvHelper;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
+using CsvHelper;
 
 class Program
 {
     static void Main()
     {
-        var csvExample = "61DD220C00770088;" +
-            "308201A2300D06092A864886F70D01010105000382018F003082018A02820181009E6ACFA5DFFB6EA21BDA80EE3E4C003688FC97573737FCAFCA8DD0F0009A5A30DD9906DB1A83FAA61E86154A6E2D653805F2145DE7F8F7D084B632EF502A834C5B58945BCCDAF0F150B7DC708F2BF71E66D2B71FD288124CD98F2C43B4941645A795E5F2B59E021037387E3D7983C23DB3B3DE951B8AD7A2BEE4E7EB2225C4436F5F758FD10595591E19D890E25101A15B225915BC9CFEA64FCC14FC5403D937EC34684E8A49DD25C69661D60BFB875E2BE236E0F6EAF620FB4C3456DC6455EAB3B97A13C17E3E08328BB64CC09DB1A747EFB06A98B64DEFE704626439D81B17A9DF7711A3F228A0E2F85320D809EBB67751736935362BA9B6BC0A58B470EE2D8A3DB1D71B72C687551536CD433432EBE9518005229A54835CE62CED152D15E3CCF6BBB8BF7F77689D72F254D0E7D59C81AB68D877B8D5B5247AEC1E5D8ECC8ECADBC9060D3D9391C0EE9BD0D5EFF13160F1294C8AE0A0CECC1BF860FB5D0BDEF77B05DD08AC1C9A1B4D730D39F3B3ECCF00F6D1409D10ECCEC20A532DAE1B0D0203010001" +
-            ";851B63BEB38C335994ED9EC0E856ED38277327401DCA54A2BD238C4EB0A168EE;" +
-            "308201A2300D06092A864886F70D01010105000382018F003082018A028201810094CFAE59879916693AABE75EB2FC1297605EB4029636A3029695421564C4F4E0BF7C0B0B1001B5933BCCAECD8C07875ADA417B5EE0126E366BBEBE9297D628D3DE2C52A405B404394A2288C589B4F355A3071EFD7A2E9370B70AB19C26D9F6664F58978527D9A74697D70D0AB7EBFC57B7F4B537600DC5A3C201D5EB3D28E2292A71EDAE7474704FF4CA17BF9757B17132AEED7DBB9134DC769EC4FBFF675A26CD90A42F8DF241B3A1236033D1771C35B3B8CACB5E42DB439F42AB5978A65E07236480C4BF5AD420CD5855D966B3E2E66DE52507989C0306A7203FD9D1D8B2E091A47D7DE687451CD645E64B155B7110BC86FB11349839E00CC72357FBE86B59BF5D1ED6569D09A190C65A53469A26BF929D6A99A74061958C7E9EAF8A57BCDAE5EF0C796D853137BF06F28824361409846A057CEC5D3C416F9B7987674783EEA9E140FFF6422881EDC1490568B0201914279FD85619D7F5ADC5194154A2B7A18133F370C483EBDC74FC38B5AFD641505E0D5E5592FC2D3256BCBFCDBA262FCB0203010001" +
-            ";E45E0B5E432131C6B911F0FA4AAB417895DBF23BB1E885FAA2FFAB3D8DEB9E84;" +
-            "30820222300D06092A864886F70D01010105000382020F003082020A02820201009214480029FE66711CA8829084F2E51534635F192721256EB117BF7655FD38813B1E46EB47CB93B68121EC7AB04A2F7EE951BA19B798A8E0AF4EF6925A1509844989A4441D4D92A10B41FD78C1A138062517B3FCA83A2BA48A4B1E2048D66DF67C69C429C0517AF6D303A142810B5494AD4EA2D46201DB04EC9FE0282C2BCD2CCD1205ECE6B44E64EEB6087CAF8C5F52F9B5BDE40ADF4B0E062A2C6D071BA4867B849B43EABFBE6F0D1054AFE8A0F3FC0774C5E41F3F620DA8B1F0512AAC301390C721251B6B4D6427D4789BB70114033F34961B4912AA666A956650A3270C172602998DE8270339EB2E63D3A60073D46FDD9903A7D134F92645F5047ACD53CE1143BD7FAA7FB66E47309BE7ACA6D4E11347A46932124207E8B7B30CCD45F4B0B0464D59B6878C34746B580372D4F569C4C88EBF605AA6691061ABB0FF4CEA77145DC645B4552E03047E1783B99A7B61972CCBD9B2F63DCC33A64F165FBCB4A2A6E67A8D76D690C01B5CDCFE1748F4AB67445FBF765D8C4F26655E127B70204E82C90D8D558BF0C3F174781AF4C10A578318B161F38FA3424676D5A30B48B48A57ACEA597F7187A0E8662627C3705FBE446DED7709904D7677E05E97CDAA6474B14388345114F224A06C94C01CB0225879CE42ADC3E26927FBB340C9F7282F6F7F145410843F3E05EE14F93B87DDD2BDEFD9A2310A86902187BC541CFC9FC4ED0203010001;8CECB754889B08660A58C50D3D4AF483C8409119E2E78440891D4B000830D139;3059301306072A8648CE3D020106082A8648CE3D030107034200048941D9CC3341ED39100F7082EB6453DB304916370F28122D95BB9AE50DCE64657D4E6CBCF6F3B45F083902D64FB9A945A763DFC4FBE9177D7A8FA09F9BECD68B;" +
-            "881C8B2CB9140D47D4E29B5BF73CFFCB937367DEA700474A631847CA77BDAD7B;" +
-            "3059301306072A8648CE3D020106082A8648CE3D03010703420004809058396198979DEF85C335216B7E3596B7A683C3FB91A9EB5A9013872EDF37CAD137529F0270EC0F5534D2DA40A4CF68115AF8CF098073F52C625B5D656DD8;" +
-            "6949ADFB46F3F7308CBAB595647C9CEAB86DB7D7D793B3CF5C31467BEC54FCA7;3059301306072A8648CE3D020106082A8648CE3D03010703420004EA3C16CF81A985070183D1897ABE6C6E2EE89E4A6DD393EFC19A79AA700221AF9B7C2139A4AE45FD1C4D7D9E7120BFF1224E3669D7548EEB169990FBB515B483;" +
-            "019659685F3B013F2577E3E65D605E79057AC74A446610B0CCB0A2C3A15E7C9B;3076301006072A8648CE3D020106052B81040022036200046DB0D2BB2340C684E97C66E1D798E9340A3B3591E1FFD9BEB9F3CA6FF15E2F07BDD246BC74C82190D1165327766014F99F3796AF79EB9F82ACA4D125018F1B0CAE57737A4472A89C0E5CB48C401D341722064F49FBE37A3114C607505BAFB1DB;" +
-            "57B57D6D3E83D19ACE90950597A42164A824EAF431F6AC5A7853830D1CB09587;" +
-            "1391C1117D8D65475BCC32A428ACF731;" +
-            "31B0475667A79E0F8B42B9C06263E424;" +
-            "08405E84;";
-
-
         var path = "C:\\Users\\kofinasa\\Desktop\\Academic_ID_650437_20231213114227.csv";
 
         using var reader = new StreamReader(path);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        // Skip the header row if it exists
         csv.Read();
         csv.ReadHeader();
 
-        // Connect to your SQL Server database (modify connection string accordingly)
+
         var connectionString = "Data Source=DM-07-PC\\TEST24;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+
+        connectionString = "Data Source=DM-07-PC\\TEST24;Integrated Security=True;Connect Timeout=30;Encrypt=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
+        connectionString = "Data Source=DM-07-PC\\TEST24;Integrated Security=True;Connect Timeout=30;Encrypt=False;Multi Subnet Failover=False";
+        connectionString = "Data Source=DM-07-PC\\TEST24;Integrated Security=True;Connect Timeout=30;Encrypt=False;";
+
+
 
         try
         {
-
-            var academicId = new AcademicId
-            {
-                ChipSerialNumber = csv.GetField<string>(0),
-                Pk1Rsa3072 = csv.GetField<string>(1),
-                FpSha256Pk1Rsa3072 = csv.GetField<string>(2),
-                Pk2Rsa3072 = csv.GetField<string>(3),
-                FpSha256Pk2Rsa3072 = csv.GetField<string>(4),
-                Pk1Rsa4096 = csv.GetField<string>(5),
-                FpSha256Pk1Rsa4096 = csv.GetField<string>(6),
-                Pk1EcdsaSecp256r1 = csv.GetField<string>(7),
-                FpSha256Pk1EcdsaSecp256r1 = csv.GetField<string>(8),
-                Pk2EcdsaSecp256r1 = csv.GetField<string>(9),
-                FpSha256Pk2EcdsaSecp256r1 = csv.GetField<string>(10),
-                Pk3EcdsaSecp256r1 = csv.GetField<string>(11),
-                FpSha256Pk3EcdsaSecp256r1 = csv.GetField<string>(12),
-                Pk1EcdsaSecp384r1 = csv.GetField<string>(13),
-                FpSha256Pk1EcdsaSecp384r1 = csv.GetField<string>(14),
-                Pin = csv.GetField<string>(15),
-                Puk = csv.GetField<string>(16)
-            };
-
-
-
             using var connection = new SqlConnection(connectionString);
             connection.Open();
 
-
-
-
-
             var tableName = "AcademicIDs";
-            var sqlCommand = $"INSERT INTO {tableName} (Column1, Column2, Column3) VALUES (@Column1, @Column2, @Column3)";
+            var sqlCommand = $"INSERT INTO {tableName} VALUES (@ChipSerialNumber, @Pk1Rsa3072, @FpSha256Pk1Rsa3072, @Pk2Rsa3072, @FpSha256Pk2Rsa3072, " +
+                              "@Pk1Rsa4096, @FpSha256Pk1Rsa4096, @Pk1EcdsaSecp256r1, @FpSha256Pk1EcdsaSecp256r1, @Pk2EcdsaSecp256r1, @FpSha256Pk2EcdsaSecp256r1, " +
+                              "@Pk3EcdsaSecp256r1, @FpSha256Pk3EcdsaSecp256r1, @Pk1EcdsaSecp384r1, @FpSha256Pk1EcdsaSecp384r1, @Pin, @Puk)";
+
+            var listOfAcademicIds = new List<AcademicId>();
 
             while (csv.Read())
             {
+                var firstline = csv.GetField<string>(0);                
+                var linesSplited = firstline.Split(';');
+
+                foreach (var line in linesSplited)
+                {
+                    Console.WriteLine($"Line: {line}");
+                    // Process each line as needed
+                }
+
+                Console.WriteLine();  // Separate lines for clarity
+                
+
+
+                var academicId = new AcademicId
+                {
+                    ChipSerialNumber = csv.GetField<string>(0),
+                    Pk1Rsa3072 = csv.GetField<string>(1),
+                    FpSha256Pk1Rsa3072 = csv.GetField<string>(2),
+                    Pk2Rsa3072 = csv.GetField<string>(3),
+                    FpSha256Pk2Rsa3072 = csv.GetField<string>(4),
+                    Pk1Rsa4096 = csv.GetField<string>(5),
+                    FpSha256Pk1Rsa4096 = csv.GetField<string>(6),
+                    Pk1EcdsaSecp256r1 = csv.GetField<string>(7),
+                    FpSha256Pk1EcdsaSecp256r1 = csv.GetField<string>(8),
+                    Pk2EcdsaSecp256r1 = csv.GetField<string>(9),
+                    FpSha256Pk2EcdsaSecp256r1 = csv.GetField<string>(10),
+                    Pk3EcdsaSecp256r1 = csv.GetField<string>(11),
+                    FpSha256Pk3EcdsaSecp256r1 = csv.GetField<string>(12),
+                    Pk1EcdsaSecp384r1 = csv.GetField<string>(13),
+                    FpSha256Pk1EcdsaSecp384r1 = csv.GetField<string>(14),
+                    Pin = csv.GetField<string>(15),
+                    Puk = csv.GetField<string>(16)
+                };
+
                 using var command = new SqlCommand(sqlCommand, connection);
-                command.Parameters.Add("@Column1", SqlDbType.VarChar).Value = csv.GetField<string>("Column1");
-                command.Parameters.Add("@Column2", SqlDbType.VarChar).Value = csv.GetField<string>("Column2");
-                command.Parameters.Add("@Column3", SqlDbType.VarChar).Value = csv.GetField<string>("Column3");
+                command.Parameters.AddWithValue("@ChipSerialNumber", academicId.ChipSerialNumber);
+                command.Parameters.AddWithValue("@Pk1Rsa3072", academicId.Pk1Rsa3072);
+                command.Parameters.AddWithValue("@FpSha256Pk1Rsa3072", academicId.FpSha256Pk1Rsa3072);
+                command.Parameters.AddWithValue("@Pk2Rsa3072", academicId.Pk2Rsa3072);
+                command.Parameters.AddWithValue("@FpSha256Pk2Rsa3072", academicId.FpSha256Pk2Rsa3072);
+                command.Parameters.AddWithValue("@Pk1Rsa4096", academicId.Pk1Rsa4096);
+                command.Parameters.AddWithValue("@FpSha256Pk1Rsa4096", academicId.FpSha256Pk1Rsa4096);
+                command.Parameters.AddWithValue("@Pk1EcdsaSecp256r1", academicId.Pk1EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@FpSha256Pk1EcdsaSecp256r1", academicId.FpSha256Pk1EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@Pk2EcdsaSecp256r1", academicId.Pk2EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@FpSha256Pk2EcdsaSecp256r1", academicId.FpSha256Pk2EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@Pk3EcdsaSecp256r1", academicId.Pk3EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@FpSha256Pk3EcdsaSecp256r1", academicId.FpSha256Pk3EcdsaSecp256r1);
+                command.Parameters.AddWithValue("@Pk1EcdsaSecp384r1", academicId.Pk1EcdsaSecp384r1);
+                command.Parameters.AddWithValue("@FpSha256Pk1EcdsaSecp384r1", academicId.FpSha256Pk1EcdsaSecp384r1);
+                command.Parameters.AddWithValue("@Pin", academicId.Pin);
+                command.Parameters.AddWithValue("@Puk", academicId.Puk);
 
                 command.ExecuteNonQuery();
             }
@@ -90,40 +105,21 @@ class Program
     public class AcademicId
     {
         public string ChipSerialNumber { get; set; } = null!;
-
         public string? Pk1Rsa3072 { get; set; }
-
         public string? FpSha256Pk1Rsa3072 { get; set; }
-
         public string? Pk2Rsa3072 { get; set; }
-
         public string? FpSha256Pk2Rsa3072 { get; set; }
-
         public string? Pk1Rsa4096 { get; set; }
-
         public string? FpSha256Pk1Rsa4096 { get; set; }
-
         public string? Pk1EcdsaSecp256r1 { get; set; }
-
         public string? FpSha256Pk1EcdsaSecp256r1 { get; set; }
-
         public string? Pk2EcdsaSecp256r1 { get; set; }
-
         public string? FpSha256Pk2EcdsaSecp256r1 { get; set; }
-
         public string? Pk3EcdsaSecp256r1 { get; set; }
-
         public string? FpSha256Pk3EcdsaSecp256r1 { get; set; }
-
         public string? Pk1EcdsaSecp384r1 { get; set; }
-
         public string? FpSha256Pk1EcdsaSecp384r1 { get; set; }
-
         public string? Pin { get; set; }
-
         public string? Puk { get; set; }
     }
-
 }
-
-
