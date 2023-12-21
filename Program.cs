@@ -1,9 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Globalization;
-using System.IO;
-using CsvHelper;
+﻿using System.Data.SqlClient;
 
 class Program
 {
@@ -133,7 +128,7 @@ class Program
 
     public class AcademicId
     {
-        public string ChipSerialNumber { get; set; } = null!;
+        public string ChipSerialNumber { get; set; } = string.Empty;
         public string? Pk1Rsa3072 { get; set; }
         public string? FpSha256Pk1Rsa3072 { get; set; }
         public string? Pk2Rsa3072 { get; set; }
